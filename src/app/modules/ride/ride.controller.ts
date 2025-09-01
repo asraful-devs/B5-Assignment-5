@@ -96,10 +96,21 @@ const getStats = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const getAllRides = catchAsync(async (req: Request, res: Response) => {
+    const result = await RideService.getAllRides();
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: 'All rides retrieved successfully',
+        data: result,
+    });
+});
+
 export const RideController = {
     createRide,
     getMyRides,
     updateRide,
     deleteRide,
     getStats,
+    getAllRides,
 };

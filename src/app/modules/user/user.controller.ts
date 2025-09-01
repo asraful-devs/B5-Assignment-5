@@ -59,6 +59,28 @@ const deleteUser = catchAsync(
     }
 );
 
+// get single user
+
+const getMe = catchAsync(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async (req: Request, res: Response, next: NextFunction) => {
+        const decodedToken = req.user as JwtPayload;
+        const result = await UserService.getMe(decodedToken.userId);
+
+        // res.status(httpStatus.OK).json({
+        //     success: true,
+        //     message: "All Users Retrieved Successfully",
+        //     data: users
+        // })
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.CREATED,
+            message: 'Your profile Retrieved Successfully',
+            data: result,
+        });
+    }
+);
+
 const getAllUsers = catchAsync(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async (req: Request, res: Response, next: NextFunction) => {
@@ -108,6 +130,7 @@ export const UserControllers = {
     createUser,
     updateUser,
     deleteUser,
+    getMe,
     getAllUsers,
     getAllDrivers,
     getAllRiders,

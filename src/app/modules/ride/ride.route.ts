@@ -22,8 +22,14 @@ router.patch(
     RideController.updateRide
 );
 
-router.delete('/:id', checkAuth('RIDER', 'ADMIN', 'DRIVER'), RideController.deleteRide);
+router.delete(
+    '/:id',
+    checkAuth('RIDER', 'ADMIN', 'DRIVER'),
+    RideController.deleteRide
+);
 
 router.get('/stats', checkAuth('RIDER', 'ADMIN'), RideController.getStats);
+
+router.get('/all-rides', checkAuth('ADMIN'), RideController.getAllRides);
 
 export const RideRoutes = router;

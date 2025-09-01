@@ -15,7 +15,8 @@ export const checkAuth =
         next: NextFunction
     ) => {
         try {
-            const accessToken = req.headers.authorization;
+            const accessToken =
+                req.headers.authorization || req.cookies.accessToken;
 
             if (!accessToken) {
                 throw new AppError(403, 'No Token Recieved');

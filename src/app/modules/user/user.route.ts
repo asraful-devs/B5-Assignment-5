@@ -22,6 +22,8 @@ router.patch(
 
 router.delete('/:id', checkAuth(Role.ADMIN), UserControllers.deleteUser);
 
+router.get('/me', checkAuth(...Object.values(Role)), UserControllers.getMe);
+
 router.get('/all-users', checkAuth(Role.ADMIN), UserControllers.getAllUsers);
 
 router.get(

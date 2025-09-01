@@ -41,8 +41,13 @@ const pickUpRide = catchAsync(async (req: Request, res: Response) => {
 
 const updateRideStatus = catchAsync(async (req: Request, res: Response) => {
     const { rideId } = req.params;
-    const { status } = req.body;
-    const result = await DriverService.updateRideStatus(rideId, status);
+    const payload = req.body;
+
+    // console.log('🚀 rideId:', rideId);
+    // console.log('🚀 raw body:', req.body);
+    // console.log('🚀 payload:', payload);
+
+    const result = await DriverService.updateRideStatus(rideId, payload);
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
@@ -74,9 +79,23 @@ const getMyRides = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+export const dailyEarningsController = async (req: Request, res: Response) => {
+    try {
+        const earnings = await DriverService.getDailyEarnings();
+        res.json({ success: true, data: earnings });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching earnings',
+            error,
+        });
+    }
+};
+
 export const DriverController = {
     getAvailableRides,
     pickUpRide,
     updateRideStatus,
     getMyRides,
+    dailyEarningsController,
 };

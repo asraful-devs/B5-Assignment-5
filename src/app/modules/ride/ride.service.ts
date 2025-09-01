@@ -109,10 +109,17 @@ const calculateRideStats = async (user: JwtPayload) => {
     };
 };
 
+const getAllRides = async () => {
+    const result = await Ride.find();
+    const count = await Ride.countDocuments();
+    return { result, count };
+};
+
 export const RideService = {
     createRide,
     getMyRides,
     updateRide,
     deleteRide,
     calculateRideStats,
+    getAllRides,
 };

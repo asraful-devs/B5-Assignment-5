@@ -105,6 +105,14 @@ const deleteUser = async (userId: string) => {
     return user;
 };
 
+// get single user
+const getMe = async (userId: string) => {
+    const user = await User.findById(userId).select('-password');
+    return {
+        data: user,
+    };
+};
+
 // get all users
 const getAllUsers = async () => {
     const users = await User.find();
@@ -142,6 +150,7 @@ export const UserService = {
     createUser,
     updateUser,
     deleteUser,
+    getMe,
     getAllUsers,
     getAllDrivers,
     getAllRiders,

@@ -49,22 +49,57 @@ const pickUpRide = async (
     return result;
 };
 
+// const updateRideStatus = async (
+//     rideId: string,
+//     payload: { status: 'COMPLETED' | 'CANCELLED' }
+// ) => {
+//     const foundRide = await Ride.findById(rideId);
+//     const { status } = payload;
+//     if (!foundRide) {
+//         throw new AppError(httpStatus.NOT_FOUND, 'Ride not found');
+//     }
+
+//     // Prevent updating if already COMPLETED or CANCELLED
+//     if (foundRide.status === 'COMPLETED' || foundRide.status === 'CANCELLED') {
+//         throw new AppError(
+//             httpStatus.BAD_REQUEST,
+//             `This ride is already ${foundRide.status.toLowerCase()}`
+//         );
+//     }
+
+//     if (foundRide.status !== 'PICKED') {
+//         throw new AppError(httpStatus.BAD_REQUEST, 'Ride is not picked');
+//     }
+
+//     // Update status
+//     foundRide.status = status as unknown as typeof foundRide.status;
+//     const result = await foundRide.save();
+//     return result;
+// };
+
 const updateRideStatus = async (
     rideId: string,
-    status: 'COMPLETED' | 'CANCELLED'
+    payload: { status: 'COMPLETED' | 'CANCELLED' }
 ) => {
-    if (status === 'COMPLETED' || status === 'CANCELLED') {
+    const foundRide = await Ride.findById(rideId);
+    const { status } = payload;
+    if (!foundRide) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Ride not found');
+    }
+
+    if (foundRide.status === 'COMPLETED' || foundRide.status === 'CANCELLED') {
         throw new AppError(
             httpStatus.BAD_REQUEST,
-            `This ride is already ${status.toLowerCase()}`
+            `This ride is already ${foundRide.status.toLowerCase()}`
         );
     }
 
-    const result = await Ride.findByIdAndUpdate(
-        rideId,
-        { status },
-        { new: true }
-    );
+    if (foundRide.status !== 'PICKED') {
+        throw new AppError(httpStatus.BAD_REQUEST, 'Ride is not picked');
+    }
+
+    foundRide.status = status as unknown as typeof foundRide.status;
+    const result = await foundRide.save();
     return result;
 };
 
@@ -73,9 +108,25 @@ const getMyRides = async (driverId: string) => {
     return result;
 };
 
+export const getDailyEarnings = async () => {
+    return Ride.aggregate([
+        { $match: { status: 'COMPLETED' } },
+        {
+            $group: {
+                _id: {
+                    $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
+                },
+                earnings: { $sum: '$payment' },
+            },
+        },
+        { $sort: { _id: 1 } },
+    ]);
+};
+
 export const DriverService = {
     getAvailableRides,
     pickUpRide,
     updateRideStatus,
     getMyRides,
+    getDailyEarnings,
 };
