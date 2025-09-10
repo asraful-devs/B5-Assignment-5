@@ -91,6 +91,18 @@ export const dailyEarningsController = async (req: Request, res: Response) => {
         });
     }
 };
+export const EarningsController = async (req: Request, res: Response) => {
+    try {
+        const earnings = await DriverService.getEarnings();
+        res.json({ success: true, data: earnings });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching earnings',
+            error,
+        });
+    }
+};
 
 export const DriverController = {
     getAvailableRides,
@@ -98,4 +110,5 @@ export const DriverController = {
     updateRideStatus,
     getMyRides,
     dailyEarningsController,
+    EarningsController,
 };

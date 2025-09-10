@@ -34,4 +34,10 @@ router.get(
     DriverController.dailyEarningsController
 );
 
+router.get(
+    '/earnings',
+    checkAuth('DRIVER', 'ADMIN'),
+    DriverController.EarningsController
+);
+
 export const DriverRoutes = router;
