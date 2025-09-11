@@ -96,10 +96,20 @@ const getStats = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 
         data: result,
     });
 }));
+const getAllRides = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield ride_service_1.RideService.getAllRides();
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'All rides retrieved successfully',
+        data: result,
+    });
+}));
 exports.RideController = {
     createRide,
     getMyRides,
     updateRide,
     deleteRide,
     getStats,
+    getAllRides,
 };

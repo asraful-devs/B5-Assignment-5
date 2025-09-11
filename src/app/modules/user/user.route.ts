@@ -7,12 +7,33 @@ import { createUserZodSchema, updateUserZodSchema } from './user.validation';
 
 const router = Router();
 
+/* ----- Fixed Order ----- */
+// Static routes should come before dynamic ones
+
+// Current user info
+router.get('/me', checkAuth(...Object.values(Role)), UserControllers.getMe);
+
+// Register
 router.post(
     '/register',
     validateRequst(createUserZodSchema),
     UserControllers.createUser
 );
 
+// Get all users (admin only)
+router.get('/all-users', checkAuth(Role.ADMIN), UserControllers.getAllUsers);
+
+// Get all drivers (admin only)
+router.get(
+    '/all-drivers',
+    checkAuth(Role.ADMIN),
+    UserControllers.getAllDrivers
+);
+
+// Get all riders (admin only)
+router.get('/all-riders', checkAuth(Role.ADMIN), UserControllers.getAllRiders);
+
+// Update user (by id)
 router.patch(
     '/:id',
     validateRequst(updateUserZodSchema),
@@ -20,18 +41,7 @@ router.patch(
     UserControllers.updateUser
 );
 
+// Delete user (by id - admin only)
 router.delete('/:id', checkAuth(Role.ADMIN), UserControllers.deleteUser);
-
-router.get('/me', checkAuth(...Object.values(Role)), UserControllers.getMe);
-
-router.get('/all-users', checkAuth(Role.ADMIN), UserControllers.getAllUsers);
-
-router.get(
-    '/all-drivers',
-    checkAuth(Role.ADMIN),
-    UserControllers.getAllDrivers
-);
-
-router.get('/all-riders', checkAuth(Role.ADMIN), UserControllers.getAllRiders);
 
 export const UserRoutes = router;

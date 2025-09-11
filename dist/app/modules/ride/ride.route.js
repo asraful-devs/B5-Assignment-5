@@ -15,4 +15,5 @@ router.get('/my-rides', (0, checkAuth_1.checkAuth)('RIDER', 'ADMIN'), ride_contr
 router.patch('/:id', (0, checkAuth_1.checkAuth)('RIDER', 'ADMIN', 'DRIVER'), (0, validateRequst_1.default)(ride_validation_1.updateRideZodSchema), ride_controller_1.RideController.updateRide);
 router.delete('/:id', (0, checkAuth_1.checkAuth)('RIDER', 'ADMIN', 'DRIVER'), ride_controller_1.RideController.deleteRide);
 router.get('/stats', (0, checkAuth_1.checkAuth)('RIDER', 'ADMIN'), ride_controller_1.RideController.getStats);
+router.get('/all-rides', (0, checkAuth_1.checkAuth)('ADMIN'), ride_controller_1.RideController.getAllRides);
 exports.RideRoutes = router;

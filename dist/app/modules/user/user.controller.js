@@ -56,6 +56,24 @@ const deleteUser = (0, catchAsync_1.default)(
         data: user,
     });
 }));
+// get single user
+const getMe = (0, catchAsync_1.default)(
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+(req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const decodedToken = req.user;
+    const result = yield user_service_1.UserService.getMe(decodedToken.userId);
+    // res.status(httpStatus.OK).json({
+    //     success: true,
+    //     message: "All Users Retrieved Successfully",
+    //     data: users
+    // })
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.CREATED,
+        message: 'Your profile Retrieved Successfully',
+        data: result,
+    });
+}));
 const getAllUsers = (0, catchAsync_1.default)(
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -96,6 +114,7 @@ exports.UserControllers = {
     createUser,
     updateUser,
     deleteUser,
+    getMe,
     getAllUsers,
     getAllDrivers,
     getAllRiders,

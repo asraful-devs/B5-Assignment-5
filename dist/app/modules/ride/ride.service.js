@@ -97,10 +97,16 @@ const calculateRideStats = (user) => __awaiter(void 0, void 0, void 0, function*
         totalSpent,
     };
 });
+const getAllRides = () => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield ride_model_1.Ride.find();
+    const count = yield ride_model_1.Ride.countDocuments();
+    return { result, count };
+});
 exports.RideService = {
     createRide,
     getMyRides,
     updateRide,
     deleteRide,
     calculateRideStats,
+    getAllRides,
 };

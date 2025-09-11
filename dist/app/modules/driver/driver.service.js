@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DriverService = void 0;
+exports.DriverService = exports.getDailyEarnings = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const AppError_1 = __importDefault(require("../../error/AppError"));
 const ride_model_1 = require("../ride/ride.model");
@@ -41,20 +41,45 @@ user) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield ride_model_1.Ride.findByIdAndUpdate(rideId, { status: 'PICKED', driver: user.userId }, { new: true });
     return result;
 });
-const updateRideStatus = (rideId, status) => __awaiter(void 0, void 0, void 0, function* () {
-    if (status === 'COMPLETED' || status === 'CANCELLED') {
-        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `This ride is already ${status.toLowerCase()}`);
+const updateRideStatus = (rideId, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const foundRide = yield ride_model_1.Ride.findById(rideId);
+    const { status } = payload;
+    if (!foundRide) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Ride not found');
     }
-    const result = yield ride_model_1.Ride.findByIdAndUpdate(rideId, { status }, { new: true });
+    if (foundRide.status === 'COMPLETED' || foundRide.status === 'CANCELLED') {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `This ride is already ${foundRide.status.toLowerCase()}`);
+    }
+    if (foundRide.status !== 'PICKED') {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Ride is not picked');
+    }
+    foundRide.status = status;
+    const result = yield foundRide.save();
     return result;
 });
 const getMyRides = (driverId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield ride_model_1.Ride.find({ driver: driverId });
     return result;
 });
+const getDailyEarnings = () => __awaiter(void 0, void 0, void 0, function* () {
+    return ride_model_1.Ride.aggregate([
+        { $match: { status: 'COMPLETED' } },
+        {
+            $group: {
+                _id: {
+                    $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
+                },
+                earnings: { $sum: '$payment' },
+            },
+        },
+        { $sort: { _id: 1 } },
+    ]);
+});
+exports.getDailyEarnings = getDailyEarnings;
 exports.DriverService = {
     getAvailableRides,
     pickUpRide,
     updateRideStatus,
     getMyRides,
+    getDailyEarnings: exports.getDailyEarnings,
 };

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DriverController = void 0;
+exports.DriverController = exports.dailyEarningsController = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
@@ -47,8 +47,11 @@ const pickUpRide = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
 }));
 const updateRideStatus = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { rideId } = req.params;
-    const { status } = req.body;
-    const result = yield driver_service_1.DriverService.updateRideStatus(rideId, status);
+    const payload = req.body;
+    // console.log('🚀 rideId:', rideId);
+    // console.log('🚀 raw body:', req.body);
+    // console.log('🚀 payload:', payload);
+    const result = yield driver_service_1.DriverService.updateRideStatus(rideId, payload);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -74,9 +77,24 @@ const getMyRides = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
         data: result,
     });
 }));
+const dailyEarningsController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const earnings = yield driver_service_1.DriverService.getDailyEarnings();
+        res.json({ success: true, data: earnings });
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching earnings',
+            error,
+        });
+    }
+});
+exports.dailyEarningsController = dailyEarningsController;
 exports.DriverController = {
     getAvailableRides,
     pickUpRide,
     updateRideStatus,
     getMyRides,
+    dailyEarningsController: exports.dailyEarningsController,
 };
