@@ -36,7 +36,7 @@ const createRide = async (payload: Partial<IRide> & { user: IUser }) => {
     // ✅ SSLCommerz থেকে payment URL generate করার চেষ্টা করছি
     try {
         const sslPayload: ISSLCommerz = {
-            address: userData.address || 'N/A',
+            address: 'N/A',
             email: userData.email,
             phoneNumber: userData.phone || 'N/A',
             name: userData.name,
@@ -110,7 +110,7 @@ const updateRide = async (id: string, payload: Partial<IRide>) => {
         // ✅ নতুন payment amount এর জন্য নতুন payment URL generate করছি
         try {
             const sslPayload: ISSLCommerz = {
-                address: userData.address || 'N/A',
+                address: 'N/A',
                 email: userData.email,
                 phoneNumber: userData.phone || 'N/A',
                 name: userData.name,

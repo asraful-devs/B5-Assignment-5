@@ -112,7 +112,7 @@ const initPayment = async (rideId: string) => {
     }
 
     const sslPayload: ISSLCommerz = {
-        address: userData.address || 'N/A',
+        address: 'N/A',
         email: userData.email,
         phoneNumber: userData.phone || 'N/A',
         name: userData.name,
@@ -129,6 +129,13 @@ const initPayment = async (rideId: string) => {
         { paymentUrl },
         { new: true }
     );
+
+    if (!updatedPayment) {
+        throw new AppError(
+            httpStatus.INTERNAL_SERVER_ERROR,
+            'Failed to update payment record.'
+        );
+    }
 
     return {
         paymentUrl: updatedPayment.paymentUrl,

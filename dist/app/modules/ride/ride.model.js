@@ -14,6 +14,7 @@ const rideSchema = new mongoose_1.Schema({
         enum: Object.values(ride_interface_1.RideStatus),
         default: ride_interface_1.RideStatus.PENDING,
     },
+    paymentUrl: { type: String },
 }, {
     timestamps: true,
     versionKey: false,
