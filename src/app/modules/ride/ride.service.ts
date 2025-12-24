@@ -5,6 +5,8 @@ import { v4 as uuid } from 'uuid';
 import AppError from '../../error/AppError';
 import { PaymentStatus } from '../payment/payment.interface';
 import { Payment } from '../payment/payment.model';
+import { ISSLCommerz } from '../SSLCommerz/SSLCommerz.interface';
+import { SSLService } from '../SSLCommerz/SSLCommerz.service';
 import { IUser } from '../user/user.interface';
 import { User } from '../user/user.model';
 import { IRide, RideStatus } from './ride.interface';
@@ -28,14 +30,38 @@ const createRide = async (payload: Partial<IRide> & { user: IUser }) => {
 
     const ride = await Ride.create(payload);
 
+    const transactionId = `TRX-${Date.now()}-${uuid()}`;
+    let paymentUrl = '';
+
+    // ✅ SSLCommerz থেকে payment URL generate করার চেষ্টা করছি
+    try {
+        const sslPayload: ISSLCommerz = {
+            address: userData.address || 'N/A',
+            email: userData.email,
+            phoneNumber: userData.phone || 'N/A',
+            name: userData.name,
+            amount: ride.payment,
+            transactionId: transactionId,
+        };
+
+        const sslPayment = await SSLService.sslPaymentInit(sslPayload);
+        paymentUrl = sslPayment.GatewayPageURL; // ✅ payment link পেয়েছি
+    } catch (error) {
+        console.log('Warning: Could not generate payment URL:', error);
+    }
+
     const payment = await Payment.create({
         ride: ride._id,
         amount: ride.payment,
-        transactionId: `TRX-${Date.now()}-${uuid()}`,
+        transactionId: transactionId,
         status: PaymentStatus.UNPAID,
+        paymentUrl: paymentUrl,
     });
 
-    return { ride, payment };
+    return {
+        ride: { ...ride.toObject(), paymentUrl },
+        payment: { ...payment.toObject() },
+    };
 };
 
 const getMyRides = async (user: JwtPayload) => {
@@ -72,13 +98,40 @@ const updateRide = async (id: string, payload: Partial<IRide>) => {
     }
 
     if (payload.payment && payload.payment !== ride.payment) {
+        const userData = await User.findById(ride.user);
+
+        if (!userData) {
+            throw new AppError(httpStatus.NOT_FOUND, 'User not found!');
+        }
+
+        const newTransactionId = `TRX-${Date.now()}-${uuid()}`;
+        let newPaymentUrl = '';
+
+        // ✅ নতুন payment amount এর জন্য নতুন payment URL generate করছি
+        try {
+            const sslPayload: ISSLCommerz = {
+                address: userData.address || 'N/A',
+                email: userData.email,
+                phoneNumber: userData.phone || 'N/A',
+                name: userData.name,
+                amount: payload.payment,
+                transactionId: newTransactionId,
+            };
+
+            const sslPayment = await SSLService.sslPaymentInit(sslPayload);
+            newPaymentUrl = sslPayment.GatewayPageURL;
+        } catch (error) {
+            console.log('Warning: Could not generate new payment URL:', error);
+        }
+
         await Payment.deleteOne({ ride: id });
 
         await Payment.create({
             ride: id,
             amount: payload.payment,
-            transactionId: `TRX-${Date.now()}-${uuid()}`,
+            transactionId: newTransactionId,
             status: PaymentStatus.UNPAID,
+            paymentUrl: newPaymentUrl, // ✅ নতুন payment URL save করছি
         });
     }
 

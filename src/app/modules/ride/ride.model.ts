@@ -13,6 +13,7 @@ const rideSchema = new Schema<IRide>(
             enum: Object.values(RideStatus),
             default: RideStatus.PENDING,
         },
+        paymentUrl: { type: String },
     },
     {
         timestamps: true,

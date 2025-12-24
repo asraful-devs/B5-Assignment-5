@@ -8,6 +8,61 @@ import { User } from '../user/user.model';
 import { PaymentStatus } from './payment.interface';
 import { Payment } from './payment.model';
 
+// const initPayment = async (rideId: string) => {
+//     const ride = await Ride.findById(rideId);
+
+//     if (!ride) {
+//         throw new AppError(
+//             httpStatus.NOT_FOUND,
+//             'Ride not found. Unable to process payment.'
+//         );
+//     }
+
+//     if (ride.status !== RideStatus.PICKED) {
+//         throw new AppError(
+//             httpStatus.BAD_REQUEST,
+//             `Payment can only be initiated when ride status is PICKED. Current status: ${ride.status}`
+//         );
+//     }
+
+//     const payment = await Payment.findOne({ ride: rideId });
+
+//     if (!payment) {
+//         throw new AppError(
+//             httpStatus.NOT_FOUND,
+//             'Payment record not found for this ride.'
+//         );
+//     }
+
+//     if (payment.status === PaymentStatus.PAID) {
+//         throw new AppError(
+//             httpStatus.BAD_REQUEST,
+//             'Payment for this ride has already been completed.'
+//         );
+//     }
+
+//     const userData = await User.findById(ride.user);
+
+//     if (!userData) {
+//         throw new AppError(httpStatus.NOT_FOUND, 'User information not found.');
+//     }
+
+//     const sslPayload: ISSLCommerz = {
+//         address: userData.address || 'N/A',
+//         email: userData.email,
+//         phoneNumber: userData.phone || 'N/A',
+//         name: userData.name,
+//         amount: payment.amount,
+//         transactionId: payment.transactionId,
+//     };
+
+//     const sslPayment = await SSLService.sslPaymentInit(sslPayload);
+
+//     return {
+//         paymentUrl: sslPayment.GatewayPageURL,
+//     };
+// };
+
 const initPayment = async (rideId: string) => {
     const ride = await Ride.findById(rideId);
 
@@ -41,6 +96,15 @@ const initPayment = async (rideId: string) => {
         );
     }
 
+    // ✅ যদি paymentUrl ইতিমধ্যে save থাকে, সেটা return করুন
+    if (payment.paymentUrl) {
+        console.log('✅ Using existing paymentUrl:', payment.paymentUrl);
+        return {
+            paymentUrl: payment.paymentUrl,
+        };
+    }
+
+    // ✅ নাহলে নতুন করে generate করুন এবং save করুন
     const userData = await User.findById(ride.user);
 
     if (!userData) {
@@ -57,9 +121,17 @@ const initPayment = async (rideId: string) => {
     };
 
     const sslPayment = await SSLService.sslPaymentInit(sslPayload);
+    const paymentUrl = sslPayment.GatewayPageURL;
+
+    // ✅ Database এ save করুন যাতে পরবর্তীতে reuse করতে পারেন
+    const updatedPayment = await Payment.findByIdAndUpdate(
+        payment._id,
+        { paymentUrl },
+        { new: true }
+    );
 
     return {
-        paymentUrl: sslPayment.GatewayPageURL,
+        paymentUrl: updatedPayment.paymentUrl,
     };
 };
 

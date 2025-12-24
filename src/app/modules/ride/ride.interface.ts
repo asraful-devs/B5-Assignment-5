@@ -15,5 +15,6 @@ export interface IRide {
     dropLocation: string;
     payment: number;
     status: RideStatus;
+    paymentUrl?: string;
     createdAt?: Date;
 }

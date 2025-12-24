@@ -5,8 +5,8 @@ import sendResponse from './../../utils/sendResponse';
 import { PaymentService } from './payment.service';
 
 const initPayment = catchAsync(async (req: Request, res: Response) => {
-    const bookingId = req.params.bookingId;
-    const result = await PaymentService.initPayment(bookingId as string);
+    const rideId = req.params.rideId;
+    const result = await PaymentService.initPayment(rideId as string);
     sendResponse(res, {
         statusCode: 201,
         success: true,
