@@ -1,122 +1,158 @@
-# B5-Assignment-5
+# RideShareX Backend API
 
-## 🛠️ Technology Stack (Suggested)
+A professional role-based ride-sharing backend API built with Express.js, TypeScript, and MongoDB. Supports riders, drivers, and admins with JWT authentication and SSL Commerz payment integration.
 
-| Category     | Tools                                              |
-| ------------ | -------------------------------------------------- |
-| ⚙️ Runtime   | Node.js                                            |
-| 🔧 Framework | Express.js                                         |
-| 🧠 Language  | TypeScript                                         |
-| 🛢️ Database  | MongoDB + Mongoose                                 |
-| 🛡️ Security  | jwt, bcrypt                                        |
-| 📦 Others    | cors, cookie-parser, zod, dotenv, etc. (as needed) |
+## Tech Stack
 
----
+-   **Runtime:** Node.js
+-   **Language:** TypeScript
+-   **Framework:** Express.js
+-   **Database:** MongoDB + Mongoose
+-   **Authentication:** JWT + Passport.js (Local & Google OAuth)
+-   **Payment:** SSL Commerz API
+-   **Security:** bcryptjs, CORS
+-   **Validation:** Zod
 
-#### A role-based backend API for a ride booking system built with Express.js and Mongoose. This API allows riders to book rides, drivers to accept and complete rides, and admins to manage the platform.
+## Project Features
 
-## 📌 Project Features
+-   JWT-based authentication with role support (rider, driver, admin)
+-   Google OAuth 2.0 integration
+-   Secure password storage using bcrypt
+-   Role-based access control (RBAC)
+-   Complete ride lifecycle: PENDING → ACCEPTED → PICKED → COMPLETED
+-   SSL Commerz payment gateway integration
+-   Contact form submission system
+-   User verification and blocking features
+-   Driver approval workflow
+-   Ride history and statistics
 
-#### 🔐 JWT-based authentication with role support (rider, driver, admin)
-
-#### 🔒 Secure password storage using bcrypt
-
-#### 🎭 Role-based route protection
-
-#### 🚕 Ride lifecycle handling (requested → accepted → picked_up → completed)
-
-#### 📜 Ride history, cancellation, and earnings tracking
-
-#### 📦 Scalable and modular codebase
-
-#### ✅ Admin capabilities (driver approval, user blocking)
-
-## 🏗️ Folder Structure
+## Folder Structure
 
 ```
 src/
-├── modules/
-│   ├── auth/           # Login, signup, JWT
-│   ├── user/           # Common user logic
-│   ├── driver/         # Driver-specific logic
-│   ├── ride/           # Ride creation, status, history
-├── middlewares/        # Auth, role check, error handlers
-├── config/             # DB connection, environment config
-├── utils/              # Helper functions
-├── app.ts              # Express app setup
-
+├── app.ts                              # Express app setup
+├── server.ts                           # Server entry point
+├── app/
+│   ├── config/
+│   │   ├── env.ts                      # Environment variables
+│   │   └── passport.ts                 # Passport strategies
+│   ├── modules/
+│   │   ├── auth/                       # Authentication (login, register, JWT)
+│   │   ├── user/                       # User management
+│   │   ├── ride/                       # Ride operations
+│   │   ├── driver/                     # Driver operations
+│   │   ├── payment/                    # Payment handling
+│   │   ├── SSLCommerz/                 # Payment gateway service
+│   │   ├── contact/                    # Contact form
+│   │   └── routes/                     # All API routes
+│   ├── middlewares/
+│   │   ├── checkAuth.ts                # Authentication middleware
+│   │   ├── validateRequst.ts           # Request validation
+│   │   ├── globalErrorHandler.ts       # Error handling
+│   │   └── notFound.ts                 # 404 handler
+│   ├── utils/
+│   │   ├── catchAsync.ts               # Async error wrapper
+│   │   ├── jwt.ts                      # JWT utilities
+│   │   ├── sendResponse.ts             # Response formatter
+│   │   ├── setCookies.ts               # Cookie utilities
+│   │   └── userTokens.ts               # Token generation
+│   ├── helpers/
+│   │   ├── handleCastError.ts          # MongoDB errors
+│   │   ├── handleValidationError.ts    # Validation errors
+│   │   └── handleZodError.ts           # Zod validation errors
+│   └── error/
+│       └── AppError.ts                 # Custom error class
+├── package.json
+├── tsconfig.json
+└── vercel.json
 ```
 
-## 🔑 Authentication & Authorization
+## API Endpoints
 
-#### >> Login / Register routes for rider/driver/admin
+**Base URL:** https://ridesharex-server-site.onrender.com/api/v1
 
-#### >> JWT Token returned on successful login
+### Authentication
 
-#### >> Middleware checks:
+-   `POST /auth/register` - User registration
+-   `POST /auth/login` - User login
+-   `GET /auth/google` - Google OAuth
+-   `POST /auth/logout` - User logout
+-   `POST /auth/refresh-token` - Refresh access token
+-   `POST /auth/reset-password` - Reset password
 
-#### > authMiddleware → verifies token
+### User Management
 
-#### > authorizeRoles("admin") → restricts access by role
+-   `GET /user/all-users` - Get all users (admin)
+-   `GET /user/all-drivers` - Get all drivers
+-   `GET /user/all-riders` - Get all riders
+-   `PUT /user/:id` - Update user profile
+-   `DELETE /user/:id` - Delete user
 
-## 📲 API Endpoints Overview
+### Ride Management
 
-❗ Example base URL: https://assignment-5-five-red.vercel.app/api/v1
+-   `POST /ride/create` - Create new ride
+-   `GET /ride/my-rides` - Get user's rides
+-   `GET /ride/stats` - Get ride statistics
+-   `PUT /ride/:id` - Update ride
+-   `DELETE /ride/:id` - Cancel ride
 
-### 🪪 User
+### Driver Operations
 
-Create User : https://assignment-5-five-red.vercel.app/api/v1/user/register
+-   `GET /driver/available-rides` - Get available rides
+-   `POST /driver/pick-up-ride/:id` - Accept ride
+-   `GET /driver/my-rides` - Get driver's rides
+-   `PUT /driver/update-ride-status/:id` - Update ride status
 
-Get All User : https://assignment-5-five-red.vercel.app/api/v1/user/all-users
+### Payment Processing
 
-Get All Driver : https://assignment-5-five-red.vercel.app/api/v1/user/all-drivers
+-   `POST /payment/init-payment/:rideId` - Initialize payment
+-   `GET /payment/ssl-payment-success` - Payment success callback
+-   `GET /payment/ssl-payment-fail` - Payment failure callback
+-   `GET /payment/ssl-payment-cancel` - Payment cancellation callback
 
-Get All Rider : https://assignment-5-five-red.vercel.app/api/v1/user/all-riders
+### Contact Form
 
-Update User : https://assignment-5-five-red.vercel.app/api/v1/user/:id
+-   `POST /contact/create` - Submit contact form
 
-Deleted User: https://assignment-5-five-red.vercel.app/api/v1/user/:id
+## Payment System (SSL Commerz)
 
-### 🔐 Auth
+The payment flow works as follows:
 
-Login User : https://assignment-5-five-red.vercel.app/api/v1/auth/login
+1. **Ride Created** - Payment record created with UNPAID status
+2. **Payment Initialized** - User requests payment, gets SSL Commerz gateway URL
+3. **User Redirected** - User completes payment on SSL Commerz
+4. **SSL Commerz Callback** - Payment gateway sends success/fail response
+5. **Status Updated** - Payment marked as PAID or FAILED
+6. **Ride Updated** - Ride status updates accordingly
 
-Logout User : https://assignment-5-five-red.vercel.app/api/v1/auth/logout
+**Payment Statuses:** UNPAID → PENDING → PAID or FAILED
 
-reset / change Password : https://assignment-5-five-red.vercel.app/api/v1/auth/reset-password
+## Database Models
 
-Refresh Token : https://assignment-5-five-red.vercel.app/api/v1/auth/refresh-token
+### User
 
-### 🧍 Rider
+-   name, email, password (hashed)
+-   role: rider | driver | admin
+-   phone, picture, isVerified, isActive
+-   OAuth providers (Google)
 
-Create Ride : https://assignment-5-five-red.vercel.app/api/v1/ride/create
+### Ride
 
-Update Ride : https://assignment-5-five-red.vercel.app/api/v1/ride/:id
+-   user (rider reference)
+-   driver (driver reference)
+-   pickupLocation, dropLocation
+-   payment amount
+-   status: PENDING | ACCEPTED | PICKED | COMPLETED | CANCELLED
 
-Deleted Ride : https://assignment-5-five-red.vercel.app/api/v1/ride/:id
+### Payment
 
-Get My Ride : https://assignment-5-five-red.vercel.app/api/v1/ride/my-rides
-
-Get My Ride Status :https://assignment-5-five-red.vercel.app/api/v1/ride/stats
-
-### 🚗 Driver
-
-Create Pick : https://assignment-5-five-red.vercel.app/api/v1/driver/pick-up-ride/:id
-
-Update Pick : https://assignment-5-five-red.vercel.app/api/v1/driver/update-ride-status/:id
-
-Get My Pick : https://assignment-5-five-red.vercel.app/api/v1/driver/my-rides
-
-Get Available Pick : https://assignment-5-five-red.vercel.app/api/v1/driver/available-rides
+-   ride reference (unique)
+-   transactionId (unique)
+-   status: PAID | UNPAID | PENDING | FAILED
+-   amount, payment gateway data
 
 ## Important Links
 
-Live Link : https://assignment-5-five-red.vercel.app/api/v1/
+**Live API:** https://ridesharex-server-site.onrender.com/api/v1/
 
-GitHub Link : https://github.com/MdAsraful56/B5-Assignment-5
-
-YouTube Video Link : https://youtu.be/bEKpn8Z6B-I?si=E39WFuc01hfon3cw
-
-YouTube Video Link : https://youtu.be/bEKpn8Z6B-I?si=E39WFuc01hfon3cw
-
-### Thanks For checking out my project! If you have any questions or suggestions, feel free to reach out.
+**YouTube Tutorial:** https://youtu.be/bEKpn8Z6B-I?si=E39WFuc01hfon3cw
